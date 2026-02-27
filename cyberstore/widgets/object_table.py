@@ -81,13 +81,15 @@ class ObjectTable(DataTable):
 
     def get_selected_object(self) -> R2Object | None:
         """Get the currently highlighted object."""
-        if self.cursor_row is None:
+        try:
+            cell_key = self.coordinate_to_cell_key(self.cursor_coordinate)
+            row_key_value = cell_key.row_key.value
+        except Exception:
             return None
-        row_key = self._row_order[self.cursor_row]
-        if row_key.value == "__parent__":
+        if row_key_value == "__parent__":
             return None
         for obj in self._objects:
-            if obj.key == row_key.value:
+            if obj.key == row_key_value:
                 return obj
         return None
 
