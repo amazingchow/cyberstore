@@ -113,9 +113,9 @@ class MainScreen(Screen):
             try:
                 buckets = app.r2_client.list_buckets()
                 names = [b.name for b in buckets]
-                self.call_from_thread(self._on_buckets_loaded, names)
+                self.app.call_from_thread(self._on_buckets_loaded, names)
             except Exception as e:
-                self.call_from_thread(self.notify, f"Error loading buckets: {e}", severity="error")
+                self.app.call_from_thread(self.notify, f"Error loading buckets: {e}", severity="error")
 
         threading.Thread(target=do_load, daemon=True).start()
 
@@ -137,9 +137,9 @@ class MainScreen(Screen):
         def do_load():
             try:
                 result = app.r2_client.list_objects(self._current_bucket, self._current_prefix)
-                self.call_from_thread(self._on_objects_loaded, result.folders, result.objects)
+                self.app.call_from_thread(self._on_objects_loaded, result.folders, result.objects)
             except Exception as e:
-                self.call_from_thread(self.notify, f"Error: {e}", severity="error")
+                self.app.call_from_thread(self.notify, f"Error: {e}", severity="error")
 
         threading.Thread(target=do_load, daemon=True).start()
 
@@ -263,9 +263,9 @@ class MainScreen(Screen):
         def do_delete():
             try:
                 app.r2_client.delete_objects(self._current_bucket, keys)
-                self.call_from_thread(self._on_delete_done, len(keys))
+                self.app.call_from_thread(self._on_delete_done, len(keys))
             except Exception as e:
-                self.call_from_thread(self.notify, f"Delete error: {e}", severity="error")
+                self.app.call_from_thread(self.notify, f"Delete error: {e}", severity="error")
 
         threading.Thread(target=do_delete, daemon=True).start()
 
@@ -292,9 +292,9 @@ class MainScreen(Screen):
             try:
                 cdn_url = app.r2_client.get_cdn_url(self._current_bucket, obj.key)
                 presigned_url = app.r2_client.generate_presigned_url(self._current_bucket, obj.key)
-                self.call_from_thread(self._show_link_screen, obj.key, cdn_url, presigned_url)
+                self.app.call_from_thread(self._show_link_screen, obj.key, cdn_url, presigned_url)
             except Exception as e:
-                self.call_from_thread(self.notify, f"Error: {e}", severity="error")
+                self.app.call_from_thread(self.notify, f"Error: {e}", severity="error")
 
         threading.Thread(target=do_get_links, daemon=True).start()
 
@@ -320,9 +320,9 @@ class MainScreen(Screen):
         def do_head():
             try:
                 metadata = app.r2_client.head_object(self._current_bucket, obj.key)
-                self.call_from_thread(self._show_info_screen, metadata)
+                self.app.call_from_thread(self._show_info_screen, metadata)
             except Exception as e:
-                self.call_from_thread(self.notify, f"Error: {e}", severity="error")
+                self.app.call_from_thread(self.notify, f"Error: {e}", severity="error")
 
         threading.Thread(target=do_head, daemon=True).start()
 
@@ -384,9 +384,9 @@ class MainScreen(Screen):
         def do_create():
             try:
                 app.r2_client.create_bucket(name)
-                self.call_from_thread(self._on_bucket_created, name)
+                self.app.call_from_thread(self._on_bucket_created, name)
             except Exception as e:
-                self.call_from_thread(self.notify, f"Error: {e}", severity="error")
+                self.app.call_from_thread(self.notify, f"Error: {e}", severity="error")
 
         threading.Thread(target=do_create, daemon=True).start()
 

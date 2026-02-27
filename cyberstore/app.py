@@ -53,9 +53,14 @@ class CyberStoreApp(App):
         if self.config.preferences.theme == "light":
             self.theme = "textual-light"
         if self.config.is_configured():
-            self.switch_to_main()
+            self.call_after_refresh(self._push_main)
         else:
-            self._push_setup()
+            self.call_after_refresh(self._push_setup)
+
+    def _push_main(self) -> None:
+        from cyberstore.screens.main_screen import MainScreen
+
+        self.push_screen(MainScreen())
 
     def _push_setup(self) -> None:
         from cyberstore.screens.setup_screen import SetupScreen
@@ -63,6 +68,7 @@ class CyberStoreApp(App):
         self.push_screen(SetupScreen())
 
     def switch_to_main(self) -> None:
+        """Called from setup screen after credentials are saved."""
         from cyberstore.screens.main_screen import MainScreen
 
         self.switch_screen(MainScreen())

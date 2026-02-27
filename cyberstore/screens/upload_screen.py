@@ -162,14 +162,14 @@ class UploadScreen(ModalScreen[str | None]):
             nonlocal uploaded_bytes
             uploaded_bytes += bytes_transferred
             pct = min(int((uploaded_bytes / file_size) * 100), 100)
-            self.call_from_thread(progress_bar.update, progress=pct)
+            self.app.call_from_thread(progress_bar.update, progress=pct)
 
         def do_upload() -> None:
             try:
                 app.r2_client.upload_file(self._bucket, local_path, key, progress_callback=progress_callback)
-                self.call_from_thread(self._upload_done, key)
+                self.app.call_from_thread(self._upload_done, key)
             except Exception as e:
-                self.call_from_thread(self._upload_error, str(e))
+                self.app.call_from_thread(self._upload_error, str(e))
 
         import threading
 

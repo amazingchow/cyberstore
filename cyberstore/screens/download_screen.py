@@ -131,7 +131,7 @@ class DownloadScreen(ModalScreen[str | None]):
             nonlocal downloaded_bytes
             downloaded_bytes += bytes_transferred
             pct = min(int((downloaded_bytes / total) * 100), 100)
-            self.call_from_thread(progress_bar.update, progress=pct)
+            self.app.call_from_thread(progress_bar.update, progress=pct)
 
         def do_download() -> None:
             try:
@@ -141,9 +141,9 @@ class DownloadScreen(ModalScreen[str | None]):
                     local_path,
                     progress_callback=progress_callback,
                 )
-                self.call_from_thread(self._download_done, local_path)
+                self.app.call_from_thread(self._download_done, local_path)
             except Exception as e:
-                self.call_from_thread(self._download_error, str(e))
+                self.app.call_from_thread(self._download_error, str(e))
 
         import threading
 
