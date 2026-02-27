@@ -1,9 +1,8 @@
-"""Boto3 wrapper for all Cloudflare R2 operations."""
+"""Boto3 wrapper for Aliyun OSS operations via S3-compatible API."""
 
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
 from typing import Any, Callable
 
 import boto3
@@ -17,65 +16,27 @@ _BOTO_CONFIG = BotocoreConfig(
 )
 
 from cyberstore.config import AppConfig
+from cyberstore.r2_client import (
+    ListObjectsResult,
+    R2Bucket,
+    R2ConnectionError,
+    R2Error,
+    R2Object,
+    R2PermissionError,
+    R2SizeLimitError,
+)
 from cyberstore.utils import MAX_OBJECT_SIZE
 
 ProgressCallback = Callable[[int], None]
 
-
-@dataclass
-class R2Object:
-    """Represents an object in R2 storage."""
-
-    key: str
-    size: int = 0
-    last_modified: Any = None
-    etag: str = ""
-    content_type: str = ""
-    is_folder: bool = False
-
-    @property
-    def name(self) -> str:
-        if self.is_folder:
-            parts = self.key.rstrip("/").split("/")
-            return parts[-1] + "/"
-        return self.key.split("/")[-1]
+OSSError = R2Error
+OSSConnectionError = R2ConnectionError
+OSSPermissionError = R2PermissionError
+OSSSizeLimitError = R2SizeLimitError
 
 
-@dataclass
-class R2Bucket:
-    """Represents an R2 bucket."""
-
-    name: str
-    creation_date: Any = None
-
-
-@dataclass
-class ListObjectsResult:
-    """Result from listing objects in a bucket."""
-
-    objects: list[R2Object] = field(default_factory=list)
-    folders: list[R2Object] = field(default_factory=list)
-    prefix: str = ""
-
-
-class R2Error(Exception):
-    """Base exception for R2 operations."""
-
-
-class R2ConnectionError(R2Error):
-    """Connection error."""
-
-
-class R2PermissionError(R2Error):
-    """Permission/credential error."""
-
-
-class R2SizeLimitError(R2Error):
-    """File exceeds size limit."""
-
-
-class R2Client:
-    """Wrapper around boto3 for Cloudflare R2 operations."""
+class OSSClient:
+    """Wrapper around boto3 for Aliyun OSS operations via S3-compatible API."""
 
     def __init__(self, config: AppConfig) -> None:
         self._config = config
@@ -83,12 +44,16 @@ class R2Client:
 
     def _get_client(self):
         if self._client is None:
+            oss = self._config.oss
+            endpoint = oss.endpoint.rstrip("/")
+            if not endpoint.startswith("http"):
+                endpoint = f"https://{endpoint}"
             self._client = boto3.client(
                 "s3",
-                endpoint_url=self._config.r2.endpoint_url,
-                aws_access_key_id=self._config.r2.access_key_id,
-                aws_secret_access_key=self._config.r2.secret_access_key,
-                region_name="auto",
+                endpoint_url=endpoint,
+                aws_access_key_id=oss.access_key_id,
+                aws_secret_access_key=oss.access_key_secret,
+                region_name=oss.region_name(),
                 config=_BOTO_CONFIG,
             )
         return self._client
@@ -97,12 +62,12 @@ class R2Client:
         self._client = None
 
     def test_connection(self) -> bool:
-        """Test the R2 connection by listing buckets."""
+        """Test the OSS connection by listing buckets."""
         success, _ = self.test_connection_detail()
         return success
 
     def test_connection_detail(self) -> tuple[bool, str]:
-        """Test the R2 connection, returning (success, message)."""
+        """Test the OSS connection, returning (success, message)."""
         try:
             self._get_client().list_buckets()
             return True, "Connected successfully"
@@ -116,7 +81,7 @@ class R2Client:
             return False, f"Unexpected error: {type(e).__name__}: {e}"
 
     def list_buckets(self) -> list[R2Bucket]:
-        """List all buckets."""
+        """List all OSS buckets."""
         try:
             response = self._get_client().list_buckets()
             return [
@@ -183,7 +148,7 @@ class R2Client:
                 "metadata": response.get("Metadata", {}),
             }
         except ClientError as e:
-            raise R2Error(f"Failed to get object info: {e}") from e
+            raise OSSError(f"Failed to get object info: {e}") from e
 
     def upload_file(
         self,
@@ -192,10 +157,10 @@ class R2Client:
         key: str,
         progress_callback: ProgressCallback | None = None,
     ) -> None:
-        """Upload a file to R2 with size validation and progress reporting."""
+        """Upload a file to OSS with size validation and progress reporting."""
         file_size = os.path.getsize(local_path)
         if file_size > MAX_OBJECT_SIZE:
-            raise R2SizeLimitError(f"File size ({file_size:,} bytes) exceeds 10 MB limit")
+            raise OSSSizeLimitError(f"File size ({file_size:,} bytes) exceeds 10 MB limit")
 
         try:
             extra_args: dict[str, str] = {}
@@ -205,19 +170,15 @@ class R2Client:
             if mime_type:
                 extra_args["ContentType"] = mime_type
 
-            callback = None
-            if progress_callback:
-                callback = progress_callback
-
             self._get_client().upload_file(
                 local_path,
                 bucket,
                 key,
                 ExtraArgs=extra_args if extra_args else None,
-                Callback=callback,
+                Callback=progress_callback,
             )
         except ClientError as e:
-            raise R2Error(f"Upload failed: {e}") from e
+            raise OSSError(f"Upload failed: {e}") from e
 
     def download_file(
         self,
@@ -226,27 +187,23 @@ class R2Client:
         local_path: str,
         progress_callback: ProgressCallback | None = None,
     ) -> None:
-        """Download a file from R2 with progress reporting."""
+        """Download a file from OSS with progress reporting."""
         try:
-            callback = None
-            if progress_callback:
-                callback = progress_callback
-
             self._get_client().download_file(
                 bucket,
                 key,
                 local_path,
-                Callback=callback,
+                Callback=progress_callback,
             )
         except ClientError as e:
-            raise R2Error(f"Download failed: {e}") from e
+            raise OSSError(f"Download failed: {e}") from e
 
     def delete_object(self, bucket: str, key: str) -> None:
         """Delete a single object."""
         try:
             self._get_client().delete_object(Bucket=bucket, Key=key)
         except ClientError as e:
-            raise R2Error(f"Delete failed: {e}") from e
+            raise OSSError(f"Delete failed: {e}") from e
 
     def delete_objects(self, bucket: str, keys: list[str]) -> None:
         """Delete multiple objects."""
@@ -256,24 +213,28 @@ class R2Client:
             objects = [{"Key": k} for k in keys]
             self._get_client().delete_objects(Bucket=bucket, Delete={"Objects": objects})
         except ClientError as e:
-            raise R2Error(f"Bulk delete failed: {e}") from e
+            raise OSSError(f"Bulk delete failed: {e}") from e
 
     def create_bucket(self, name: str) -> None:
-        """Create a new bucket."""
+        """Create a new OSS bucket."""
         try:
-            self._get_client().create_bucket(Bucket=name)
+            region = self._config.oss.region_name()
+            self._get_client().create_bucket(
+                Bucket=name,
+                CreateBucketConfiguration={"LocationConstraint": region},
+            )
         except ClientError as e:
-            raise R2Error(f"Failed to create bucket: {e}") from e
+            raise OSSError(f"Failed to create bucket: {e}") from e
 
     def delete_bucket(self, name: str) -> None:
-        """Delete an empty bucket."""
+        """Delete an empty OSS bucket."""
         try:
             self._get_client().delete_bucket(Bucket=name)
         except ClientError as e:
-            raise R2Error(f"Failed to delete bucket: {e}") from e
+            raise OSSError(f"Failed to delete bucket: {e}") from e
 
     def generate_presigned_url(self, bucket: str, key: str, expiry: int | None = None) -> str:
-        """Generate a presigned URL for an object."""
+        """Generate a presigned URL for an OSS object."""
         if expiry is None:
             expiry = self._config.preferences.presigned_expiry
         try:
@@ -283,7 +244,7 @@ class R2Client:
                 ExpiresIn=expiry,
             )
         except ClientError as e:
-            raise R2Error(f"Failed to generate presigned URL: {e}") from e
+            raise OSSError(f"Failed to generate presigned URL: {e}") from e
 
     def get_cdn_url(self, bucket: str, key: str) -> str | None:
         """Construct a CDN URL for an object using configured domain."""
