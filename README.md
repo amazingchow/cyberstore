@@ -1,6 +1,6 @@
 # CyberStore
 
-Cyberpunk-themed TUI client for object storage — supports **Cloudflare R2** (default) and **Aliyun OSS**.
+TUI client for object storage — supports **Cloudflare R2** (default) and **Aliyun OSS**.
 
 ## Features
 
@@ -75,7 +75,7 @@ custom_domain = "cdn.example.com"
 r2_dev_subdomain = ""
 
 [preferences]
-theme = "dark"
+theme = "textual-dark"
 download_path = "/Users/you/Downloads"
 presigned_expiry = 3600
 ```
@@ -95,5 +95,5 @@ presigned_expiry = 3600
 | `Space`     | Toggle select      |
 | `Backspace` | Go up one level    |
 | `n`         | New bucket         |
-| `Ctrl+T`    | Toggle theme       |
+| `Ctrl+T`    | Cycle theme       |
 | `q`         | Quit               |

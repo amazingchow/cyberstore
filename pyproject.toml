@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "cyberstore"
 version = "0.1.0"
-description = "Cyberpunk-themed Cloudflare R2 TUI client"
+description = "Object Storage TUI client (Cloudflare R2 / Aliyun OSS)"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

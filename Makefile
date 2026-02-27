@@ -31,12 +31,12 @@ endef
 
 .PHONY: help
 help:  ## Display this help screen
-	$(call print_header,cyberstore - Cyberpunk-themed Cloudflare R2 TUI client)
+	$(call print_header,cyberstore - Object Storage TUI client (Cloudflare R2 / Aliyun OSS))
 	@echo "Version: $(VERSION) ($(COMMIT_HASH))"
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: all
-all: clean fmt test ## Full build pipeline: clean, format, test
+all: clean fmt lint test ## Full build pipeline: clean, format, lint, test
 
 ##@ Development
 

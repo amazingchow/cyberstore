@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Center, Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import (
     Button,
@@ -24,22 +24,7 @@ class UploadScreen(ModalScreen[str | None]):
     """Modal screen for selecting and uploading a file."""
 
     DEFAULT_CSS = """
-    UploadScreen {
-        align: center middle;
-    }
-    UploadScreen #dialog {
-        width: 80;
-        height: 30;
-        padding: 1 2;
-    }
-    UploadScreen #title {
-        text-style: bold;
-        width: 100%;
-        content-align: center middle;
-        margin-bottom: 1;
-    }
     UploadScreen #file-tree {
-        height: 1fr;
         margin: 1 0;
     }
     UploadScreen #selected-file {
@@ -49,25 +34,6 @@ class UploadScreen(ModalScreen[str | None]):
     UploadScreen #file-size-info {
         height: 1;
         padding: 0 1;
-    }
-    UploadScreen #error-label {
-        color: red;
-        height: 1;
-    }
-    UploadScreen #key-input {
-        width: 100%;
-    }
-    UploadScreen #progress {
-        width: 100%;
-        margin: 1 0;
-    }
-    UploadScreen #buttons {
-        width: 100%;
-        height: 3;
-        align: center middle;
-    }
-    UploadScreen #buttons Button {
-        margin: 0 1;
     }
     """
 
@@ -86,13 +52,13 @@ class UploadScreen(ModalScreen[str | None]):
         home = str(Path.home())
         with Vertical(id="dialog"):
             yield Label(f"Upload to: {self._bucket}/{self._prefix}", id="title")
-            yield DirectoryTree(home, id="file-tree")
-            yield Static("No file selected", id="selected-file")
-            yield Static("", id="file-size-info")
-            yield Static("", id="error-label")
-            yield Static("Object key (path in bucket):", classes="field-label")
-            yield Input(value=self._prefix, placeholder="path/to/file.ext", id="key-input")
-            yield ProgressBar(total=100, show_eta=False, id="progress")
+            with Vertical(id="main-body"):
+                yield DirectoryTree(home, id="file-tree")
+                yield Static("No file selected", id="selected-file")
+                yield Static("", id="file-size-info")
+                yield Static("", id="error-label")
+                with Center():
+                    yield ProgressBar(total=100, show_eta=False, id="progress")
             with Horizontal(id="buttons"):
                 yield Button("Cancel", variant="default", id="cancel")
                 yield Button("Upload", variant="success", id="upload")
@@ -107,16 +73,12 @@ class UploadScreen(ModalScreen[str | None]):
         file_size = os.path.getsize(path)
 
         self.query_one("#selected-file", Static).update(f"Selected: {filename}")
-        self.query_one("#file-size-info", Static).update(f"Size: {format_size(file_size)}")
+        self.query_one("#file-size-info", Static).update(f"File Size: {format_size(file_size)}")
 
         if file_size > MAX_OBJECT_SIZE:
             self.query_one("#error-label", Static).update(f"File exceeds 10 MB limit ({format_size(file_size)})")
         else:
             self.query_one("#error-label", Static).update("")
-
-        key_input = self.query_one("#key-input", Input)
-        if not key_input.value or key_input.value == self._prefix:
-            key_input.value = self._prefix + filename
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "upload":

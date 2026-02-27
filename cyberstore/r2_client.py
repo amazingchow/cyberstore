@@ -10,14 +10,14 @@ import boto3
 from botocore.config import Config as BotocoreConfig
 from botocore.exceptions import ClientError, EndpointConnectionError, NoCredentialsError
 
+from cyberstore.config import AppConfig
+from cyberstore.utils import MAX_OBJECT_SIZE
+
 _BOTO_CONFIG = BotocoreConfig(
     connect_timeout=10,
     read_timeout=15,
     retries={"max_attempts": 1},
 )
-
-from cyberstore.config import AppConfig
-from cyberstore.utils import MAX_OBJECT_SIZE
 
 ProgressCallback = Callable[[int], None]
 

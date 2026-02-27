@@ -81,7 +81,7 @@ class CDNConfig:
 class Preferences:
     """User preferences."""
 
-    theme: str = "dark"
+    theme: str = "textual-dark"
     download_path: str = str(Path.home() / "Downloads")
     presigned_expiry: int = 3600  # seconds
 
@@ -159,7 +159,7 @@ class AppConfig:
             )
         if prefs := data.get("preferences"):
             config.preferences = Preferences(
-                theme=prefs.get("theme", "dark"),
+                theme=prefs.get("theme", "textual-dark"),
                 download_path=prefs.get("download_path", str(Path.home() / "Downloads")),
                 presigned_expiry=prefs.get("presigned_expiry", 3600),
             )

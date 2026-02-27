@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Center, Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label, ProgressBar, Static
 
@@ -15,41 +15,9 @@ class DownloadScreen(ModalScreen[str | None]):
     """Modal screen for downloading a file with destination picker."""
 
     DEFAULT_CSS = """
-    DownloadScreen {
-        align: center middle;
-    }
-    DownloadScreen #dialog {
-        width: 70;
-        height: auto;
-        padding: 1 2;
-    }
-    DownloadScreen #title {
-        text-style: bold;
-        width: 100%;
-        content-align: center middle;
-        margin-bottom: 1;
-    }
-    DownloadScreen .field-label {
-        margin-top: 1;
-    }
     DownloadScreen #dest-input {
         width: 100%;
-    }
-    DownloadScreen #error-label {
-        color: red;
-        height: 1;
-    }
-    DownloadScreen #progress {
-        width: 100%;
-        margin: 1 0;
-    }
-    DownloadScreen #buttons {
-        width: 100%;
-        height: 3;
-        align: center middle;
-    }
-    DownloadScreen #buttons Button {
-        margin: 0 1;
+        margin-top: 1;
     }
     """
 
@@ -77,11 +45,13 @@ class DownloadScreen(ModalScreen[str | None]):
 
         with Vertical(id="dialog"):
             yield Label(f"Download: {filename}", id="title")
-            yield Static(f"From: {self._bucket}/{self._key}")
-            yield Static("Save to:", classes="field-label")
-            yield Input(value=default_path, id="dest-input")
-            yield Static("", id="error-label")
-            yield ProgressBar(total=100, show_eta=False, id="progress")
+            with Vertical(id="main-body"):
+                yield Static(f"From: {self._bucket}/{self._key}")
+                yield Static("Save to:", classes="field-label")
+                yield Input(value=default_path, id="dest-input")
+                yield Static("", id="error-label")
+                with Center():
+                    yield ProgressBar(total=100, show_eta=False, id="progress")
             with Horizontal(id="buttons"):
                 yield Button("Cancel", variant="default", id="cancel")
                 yield Button("Download", variant="success", id="download")

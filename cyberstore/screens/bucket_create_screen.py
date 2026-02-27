@@ -14,38 +14,8 @@ class BucketCreateScreen(ModalScreen[str | None]):
     """Modal dialog for creating a new R2 bucket."""
 
     DEFAULT_CSS = """
-    BucketCreateScreen {
-        align: center middle;
-    }
-    BucketCreateScreen #dialog {
-        width: 60;
-        height: auto;
-        padding: 1 2;
-    }
-    BucketCreateScreen #title {
-        text-style: bold;
-        width: 100%;
-        content-align: center middle;
-        margin-bottom: 1;
-    }
-    BucketCreateScreen .field-label {
-        margin-top: 1;
-    }
     BucketCreateScreen #bucket-name {
         width: 100%;
-    }
-    BucketCreateScreen #error-label {
-        color: red;
-        height: 1;
-    }
-    BucketCreateScreen #buttons {
-        width: 100%;
-        height: 3;
-        align: center middle;
-        margin-top: 1;
-    }
-    BucketCreateScreen #buttons Button {
-        margin: 0 1;
     }
     """
 

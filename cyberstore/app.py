@@ -12,9 +12,19 @@ from cyberstore.r2_client import R2Client
 
 CSS_DIR = Path(__file__).parent / "styles"
 
+THEMES = [
+    "nord",
+    "gruvbox",
+    "tokyo-night",
+    "textual-dark",
+    "solarized-light",
+    "atom-one-dark",
+    "atom-one-light",
+]
+
 
 class CyberStoreApp(App):
-    """Cyberpunk-themed object storage TUI client (Cloudflare R2 / Aliyun OSS)."""
+    """Object storage TUI client (Cloudflare R2 / Aliyun OSS)."""
 
     TITLE = "CyberStore"
     SUB_TITLE = "Object Storage Manager"
@@ -26,7 +36,7 @@ class CyberStoreApp(App):
 
     BINDINGS = [
         ("q", "quit", "Quit"),
-        ("ctrl+t", "toggle_dark", "Theme"),
+        ("ctrl+t", "cycle_theme", "Theme"),
         ("ctrl+p", "command_palette", "Commands"),
     ]
 
@@ -50,8 +60,8 @@ class CyberStoreApp(App):
         return self.storage_client
 
     def on_mount(self) -> None:
-        if self.config.preferences.theme == "light":
-            self.theme = "textual-light"
+        saved = self.config.preferences.theme
+        self.theme = saved if saved in THEMES else "textual-dark"
         if self.config.is_configured():
             self.call_after_refresh(self._push_main)
         else:
@@ -73,7 +83,12 @@ class CyberStoreApp(App):
 
         self.switch_screen(MainScreen())
 
-    def action_toggle_dark(self) -> None:
-        self.dark = not self.dark
-        self.config.preferences.theme = "dark" if self.dark else "light"
+    def action_cycle_theme(self) -> None:
+        try:
+            idx = THEMES.index(self.theme)
+        except ValueError:
+            idx = -1
+        next_theme = THEMES[(idx + 1) % len(THEMES)]
+        self.theme = next_theme
+        self.config.preferences.theme = next_theme
         self.config.save()

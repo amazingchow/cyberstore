@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import datetime
 
 import humanize
 from textual.message import Message
@@ -64,8 +64,8 @@ class ObjectTable(DataTable):
             modified = ""
             if obj.last_modified:
                 try:
-                    if isinstance(obj.last_modified, datetime):
-                        modified = humanize.naturaltime(datetime.now(timezone.utc) - obj.last_modified)
+                    if isinstance(obj.last_modified, datetime.datetime):
+                        modified = humanize.naturaltime(datetime.datetime.now(datetime.UTC) - obj.last_modified)
                     else:
                         modified = str(obj.last_modified)
                 except Exception:

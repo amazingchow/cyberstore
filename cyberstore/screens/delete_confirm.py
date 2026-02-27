@@ -12,35 +12,11 @@ class DeleteConfirmScreen(ModalScreen[bool]):
     """Modal dialog to confirm object/bucket deletion."""
 
     DEFAULT_CSS = """
-    DeleteConfirmScreen {
-        align: center middle;
-    }
-    DeleteConfirmScreen #dialog {
-        width: 60;
-        height: auto;
-        max-height: 20;
-        padding: 1 2;
-    }
-    DeleteConfirmScreen #title {
-        text-style: bold;
-        width: 100%;
-        content-align: center middle;
-        margin-bottom: 1;
-    }
     DeleteConfirmScreen .file-list {
         height: auto;
         max-height: 8;
         margin: 1 0;
         padding: 0 1;
-    }
-    DeleteConfirmScreen #buttons {
-        width: 100%;
-        height: 3;
-        align: center middle;
-        margin-top: 1;
-    }
-    DeleteConfirmScreen #buttons Button {
-        margin: 0 1;
     }
     """
 
@@ -52,6 +28,7 @@ class DeleteConfirmScreen(ModalScreen[bool]):
         super().__init__()
         self._items = items
         self._is_bucket = is_bucket
+        self._deleting = False
 
     def compose(self) -> ComposeResult:
         kind = "bucket" if self._is_bucket else "object"
@@ -60,13 +37,14 @@ class DeleteConfirmScreen(ModalScreen[bool]):
 
         with Vertical(id="dialog"):
             yield Label(title, id="title")
-            yield Static("This action cannot be undone.", classes="warning-text")
-            with Vertical(classes="file-list"):
-                for item in self._items[:10]:
-                    name = item.split("/")[-1] if "/" in item else item
-                    yield Static(f"  ✕ {name}")
-                if len(self._items) > 10:
-                    yield Static(f"  ... and {len(self._items) - 10} more")
+            with Vertical(id="main-body"):
+                yield Static("This action cannot be undone.", classes="warning-text")
+                with Vertical(classes="file-list"):
+                    for item in self._items[:10]:
+                        name = item.split("/")[-1] if "/" in item else item
+                        yield Static(f"  ✕ {name}")
+                    if len(self._items) > 10:
+                        yield Static(f"  ... and {len(self._items) - 10} more")
             with Horizontal(id="buttons"):
                 yield Button("Cancel", variant="default", id="cancel")
                 yield Button("Delete", variant="error", id="confirm")
@@ -75,7 +53,9 @@ class DeleteConfirmScreen(ModalScreen[bool]):
         if event.button.id == "confirm":
             self.dismiss(True)
         else:
-            self.dismiss(False)
+            if not self._deleting:
+                self.dismiss(False)
 
     def action_cancel(self) -> None:
-        self.dismiss(False)
+        if not self._deleting:
+            self.dismiss(False)

@@ -9,15 +9,6 @@ import boto3
 from botocore.config import Config as BotocoreConfig
 from botocore.exceptions import ClientError, EndpointConnectionError, NoCredentialsError
 
-_BOTO_CONFIG = BotocoreConfig(
-    connect_timeout=10,
-    read_timeout=15,
-    retries={"max_attempts": 1},
-    s3={"addressing_style": "virtual", "payload_signing_enabled": False},
-    request_checksum_calculation="when_required",
-    response_checksum_validation="when_required",
-)
-
 from cyberstore.config import AppConfig
 from cyberstore.r2_client import (
     ListObjectsResult,
@@ -29,6 +20,15 @@ from cyberstore.r2_client import (
     R2SizeLimitError,
 )
 from cyberstore.utils import MAX_OBJECT_SIZE
+
+_BOTO_CONFIG = BotocoreConfig(
+    connect_timeout=10,
+    read_timeout=15,
+    retries={"max_attempts": 1},
+    s3={"addressing_style": "virtual", "payload_signing_enabled": False},
+    request_checksum_calculation="when_required",
+    response_checksum_validation="when_required",
+)
 
 ProgressCallback = Callable[[int], None]
 

@@ -8,8 +8,9 @@ from rich.markup import escape
 from textual.app import ComposeResult
 from textual.containers import Vertical
 from textual.screen import Screen
-from textual.widgets import Button, Footer, Header, Input, Label, RadioButton, RadioSet, RichLog, Static
+from textual.widgets import Button, Footer, Header, Input, Label, RadioButton, RadioSet, RichLog, Select, Static
 
+from cyberstore.app import THEMES
 from cyberstore.config import PROVIDER_OSS, PROVIDER_R2
 
 
@@ -27,12 +28,6 @@ class SetupScreen(Screen):
         align: center top;
         margin: 2 0;
     }
-    SetupScreen #title {
-        text-style: bold;
-        width: 100%;
-        content-align: center middle;
-        margin-bottom: 1;
-    }
     SetupScreen #subtitle {
         width: 100%;
         content-align: center middle;
@@ -40,7 +35,7 @@ class SetupScreen(Screen):
         color: $text-muted;
     }
     SetupScreen .field-label {
-        margin-top: 1;
+        
     }
     SetupScreen .field-input {
         width: 100%;
@@ -159,6 +154,14 @@ class SetupScreen(Screen):
                 classes="field-input",
             )
 
+            yield Static("── Theme ──", classes="section-title")
+            yield Select(
+                [(t, t) for t in THEMES],
+                value="textual-dark",
+                id="theme-select",
+                allow_blank=False,
+            )
+
             yield Static("", id="error-label")
             yield Button("Test Connection & Save", variant="success", id="save-btn")
 
@@ -188,6 +191,9 @@ class SetupScreen(Screen):
         self.query_one("#oss-secret-key", Input).value = config.oss.access_key_secret
         self.query_one("#cdn-domain", Input).value = config.cdn.custom_domain
         self.query_one("#r2-dev-subdomain", Input).value = config.cdn.r2_dev_subdomain
+        saved_theme = config.preferences.theme
+        if saved_theme in THEMES:
+            self.query_one("#theme-select", Select).value = saved_theme
 
     def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
         if event.radio_set.id == "provider-select":
@@ -207,6 +213,10 @@ class SetupScreen(Screen):
     def _selected_provider(self) -> str:
         rs = self.query_one("#provider-select", RadioSet)
         return PROVIDER_OSS if rs.pressed_index == 1 else PROVIDER_R2
+
+    def _selected_theme(self) -> str:
+        value = self.query_one("#theme-select", Select).value
+        return value if value in THEMES else "textual-dark"
 
     # ── logging helpers ────────────────────────────────────────────────────────
 
@@ -295,6 +305,8 @@ class SetupScreen(Screen):
 
         config.cdn.custom_domain = cdn_domain
         config.cdn.r2_dev_subdomain = r2_dev_sub
+        config.preferences.theme = self._selected_theme()
+        app.theme = config.preferences.theme
 
         app.rebuild_storage_client()
         self._log("Connecting... (timeout 10 s)", "info")
