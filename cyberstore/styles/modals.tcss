@@ -1,0 +1,81 @@
+/* CyberStore - Modal Dialog Styles */
+
+/* ── Modal overlay ── */
+ModalScreen {
+    background: rgba(5, 8, 15, 0.85);
+}
+
+/* ── Modal dialog container ── */
+#dialog {
+    background: #0d1224;
+    border: round #00ffcc;
+    padding: 1 2;
+}
+
+/* ── Modal title ── */
+#title {
+    color: #00ffcc;
+    text-style: bold;
+    text-align: center;
+}
+
+/* ── Modal subtitle / descriptions ── */
+.warning-text {
+    color: #ff8844;
+}
+
+/* ── Error labels in modals ── */
+#error-label {
+    color: #ff4466;
+}
+
+/* ── Section titles ── */
+.section-title {
+    color: #00ccaa;
+    text-style: bold;
+}
+
+/* ── URL inputs (link screen) ── */
+.url-input Input {
+    background: #141a30;
+    color: #c0c8e0;
+    border: tall #1a2040;
+}
+
+/* ── Info rows ── */
+.info-row {
+    color: #c0c8e0;
+}
+
+/* ── File list in delete confirmation ── */
+.file-list {
+    background: #0a0e1a;
+    color: #ff8844;
+    border: tall #1a1a2e;
+    padding: 0 1;
+}
+
+/* ── Setup screen container ── */
+#setup-container {
+    background: #0d1224;
+    border: round #00ffcc;
+}
+
+/* ── Light mode modal overrides ── */
+.light ModalScreen {
+    background: rgba(200, 210, 230, 0.80);
+}
+
+.light #dialog {
+    background: #f5f7fa;
+    border: round #0066aa;
+}
+
+.light #title {
+    color: #0066aa;
+}
+
+.light #setup-container {
+    background: #f5f7fa;
+    border: round #0066aa;
+}

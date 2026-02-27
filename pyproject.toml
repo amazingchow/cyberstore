@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cyberstore"
+version = "0.1.0"
+description = "Cyberpunk-themed Cloudflare R2 TUI client"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.42.58",
+    "humanize>=4.15.0",
+    "pyperclip>=1.11.0",
+    "textual>=8.0.0",
+    "tomli-w>=1.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.15.4",
+]
+
+[project.scripts]
+cyberstore = "cyberstore.__main__:main"
+
+[tool.ruff]
+lint.select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+    "T201",
+    "UP",
+]
+lint.ignore = [
+    "UP006",
+    "UP007",
+    # We actually do want to import from typing_extensions
+    "UP015",
+    "UP035",
+    "UP045",
+    "E501",
+    "E741",
+    "T201",
+]
+line-length = 120
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "UP"]
+[tool.ruff.lint.pydocstyle]
+convention = "google"

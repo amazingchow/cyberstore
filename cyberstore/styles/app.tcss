@@ -1,0 +1,319 @@
+/* CyberStore - Cyberpunk Neon Theme */
+
+/* ── Global ── */
+Screen {
+    background: #0a0e1a;
+    color: #c0c8e0;
+}
+
+/* ── Header ── */
+Header {
+    background: #0d1224;
+    color: #00ffcc;
+    text-style: bold;
+}
+
+HeaderTitle {
+    color: #00ffcc;
+}
+
+/* ── Footer ── */
+Footer {
+    background: #0d1224;
+    color: #6a7090;
+}
+
+FooterKey {
+    background: #141a30;
+    color: #00ffcc;
+}
+
+FooterKey .footer-key--key {
+    background: #1a2040;
+    color: #00ffcc;
+}
+
+FooterKey .footer-key--description {
+    color: #8890b0;
+}
+
+/* ── Sidebar / Bucket Tree ── */
+#sidebar {
+    background: #0d1224;
+    border-right: solid #1a1a2e;
+    padding: 1 0;
+}
+
+#sidebar Tree {
+    background: #0d1224;
+    color: #c0c8e0;
+    scrollbar-background: #0d1224;
+    scrollbar-color: #1a2040;
+    scrollbar-color-hover: #00ffcc40;
+    scrollbar-color-active: #00ffcc;
+}
+
+Tree > .tree--cursor {
+    background: #00ffcc20;
+    color: #00ffcc;
+    text-style: bold;
+}
+
+Tree > .tree--highlight {
+    background: #00ffcc10;
+}
+
+Tree > .tree--guides {
+    color: #1a2040;
+}
+
+Tree > .tree--guides-hover {
+    color: #00ffcc40;
+}
+
+/* ── Search Bar ── */
+#search-bar {
+    background: #0d1224;
+    border-bottom: solid #1a1a2e;
+    padding: 0 1;
+}
+
+#search-bar Input {
+    background: #141a30;
+    color: #c0c8e0;
+    border: tall #1a2040;
+}
+
+#search-bar Input:focus {
+    border: tall #00ffcc;
+}
+
+/* ── Breadcrumb ── */
+#breadcrumb {
+    background: #0f1428;
+    color: #00ccaa;
+    padding: 0 1;
+}
+
+/* ── Object Table ── */
+#object-table {
+    background: #0a0e1a;
+    scrollbar-background: #0a0e1a;
+    scrollbar-color: #1a2040;
+    scrollbar-color-hover: #00ffcc40;
+    scrollbar-color-active: #00ffcc;
+}
+
+DataTable {
+    background: #0a0e1a;
+    color: #c0c8e0;
+}
+
+DataTable > .datatable--header {
+    background: #0d1224;
+    color: #00ccaa;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: #00ffcc25;
+    color: #ffffff;
+}
+
+DataTable > .datatable--hover {
+    background: #00ffcc10;
+}
+
+DataTable > .datatable--even-row {
+    background: #0c1020;
+}
+
+DataTable > .datatable--odd-row {
+    background: #0a0e1a;
+}
+
+/* ── Status Bar ── */
+#status-bar {
+    background: #0d1224;
+    color: #6a7090;
+    border-top: solid #1a1a2e;
+    height: 1;
+}
+
+#status-bar #status-conn {
+    color: #00ffcc;
+}
+
+/* ── General Inputs ── */
+Input {
+    background: #141a30;
+    color: #c0c8e0;
+    border: tall #1a2040;
+}
+
+Input:focus {
+    border: tall #00ffcc;
+}
+
+Input.-invalid {
+    border: tall #ff4466;
+}
+
+/* ── Buttons ── */
+Button {
+    background: #1a2040;
+    color: #c0c8e0;
+    border: tall #2a3060;
+}
+
+Button:hover {
+    background: #2a3060;
+    color: #ffffff;
+}
+
+Button:focus {
+    border: tall #00ffcc;
+}
+
+Button.-primary {
+    background: #00997a;
+    color: #ffffff;
+    border: tall #00ffcc;
+}
+
+Button.-primary:hover {
+    background: #00bb99;
+}
+
+Button.-success {
+    background: #006644;
+    color: #ffffff;
+    border: tall #00cc88;
+}
+
+Button.-success:hover {
+    background: #008855;
+}
+
+Button.-error {
+    background: #661133;
+    color: #ffffff;
+    border: tall #ff4466;
+}
+
+Button.-error:hover {
+    background: #882244;
+}
+
+/* ── Progress Bar ── */
+ProgressBar {
+    padding: 0 1;
+}
+
+ProgressBar Bar {
+    background: #1a2040;
+    color: #00ffcc;
+}
+
+ProgressBar Bar > .bar--bar {
+    color: #00ffcc;
+}
+
+ProgressBar Bar > .bar--complete {
+    color: #00ffcc;
+}
+
+/* ── Directory Tree (file picker) ── */
+DirectoryTree {
+    background: #0d1224;
+    color: #c0c8e0;
+    scrollbar-background: #0d1224;
+    scrollbar-color: #1a2040;
+}
+
+DirectoryTree > .tree--cursor {
+    background: #00ffcc20;
+    color: #00ffcc;
+}
+
+/* ── Scrollbar ── */
+Scrollbar {
+    background: transparent;
+    color: #1a2040;
+}
+
+/* ── Toast / Notification ── */
+Toast {
+    background: #141a30;
+    color: #c0c8e0;
+    border: tall #00ffcc;
+}
+
+/* ── Label / Static ── */
+.warning-text {
+    color: #ff8844;
+}
+
+.hint-text {
+    color: #6a7090;
+}
+
+.field-label {
+    color: #8890b0;
+}
+
+/* ── Light mode overrides ── */
+.light Screen {
+    background: #f5f7fa;
+    color: #1a1a2e;
+}
+
+.light Header {
+    background: #e8ecf2;
+    color: #0066aa;
+}
+
+.light Footer {
+    background: #e8ecf2;
+    color: #4a5070;
+}
+
+.light #sidebar {
+    background: #eef1f6;
+    border-right: solid #d0d4e0;
+}
+
+.light DataTable {
+    background: #f5f7fa;
+    color: #1a1a2e;
+}
+
+.light DataTable > .datatable--header {
+    background: #e8ecf2;
+    color: #0066aa;
+}
+
+.light DataTable > .datatable--cursor {
+    background: #0066aa30;
+    color: #000000;
+}
+
+.light DataTable > .datatable--even-row {
+    background: #eef1f6;
+}
+
+.light Input {
+    background: #ffffff;
+    color: #1a1a2e;
+    border: tall #c0c8e0;
+}
+
+.light Button {
+    background: #e8ecf2;
+    color: #1a1a2e;
+}
+
+.light #status-bar {
+    background: #e8ecf2;
+    color: #4a5070;
+}
