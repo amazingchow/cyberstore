@@ -120,8 +120,14 @@ class SetupScreen(Screen):
                 yield Static("── OSS Credentials ──", classes="section-title")
                 yield Static("Endpoint:", classes="field-label")
                 yield Input(
-                    placeholder="e.g., https://oss-cn-hangzhou.aliyuncs.com",
+                    placeholder="e.g., https://oss-cn-shenzhen.aliyuncs.com",
                     id="oss-endpoint",
+                    classes="field-input",
+                )
+                yield Static("Bucket:", classes="field-label")
+                yield Input(
+                    placeholder="e.g., mybucket",
+                    id="oss-bucket",
                     classes="field-input",
                 )
                 yield Static("Access Key ID:", classes="field-label")
@@ -168,8 +174,7 @@ class SetupScreen(Screen):
 
         config = app.config
         if config.storage_provider == PROVIDER_OSS:
-            rs = self.query_one("#provider-select", RadioSet)
-            rs.action_select_button(1)
+            self.query_one("#rb-oss", RadioButton).value = True
             self._show_oss_fields()
         else:
             self._show_r2_fields()
@@ -178,6 +183,7 @@ class SetupScreen(Screen):
         self.query_one("#r2-access-key", Input).value = config.r2.access_key_id
         self.query_one("#r2-secret-key", Input).value = config.r2.secret_access_key
         self.query_one("#oss-endpoint", Input).value = config.oss.endpoint
+        self.query_one("#oss-bucket", Input).value = config.oss.bucket
         self.query_one("#oss-access-key", Input).value = config.oss.access_key_id
         self.query_one("#oss-secret-key", Input).value = config.oss.access_key_secret
         self.query_one("#cdn-domain", Input).value = config.cdn.custom_domain
@@ -253,9 +259,10 @@ class SetupScreen(Screen):
                 return
         else:
             oss_endpoint = self.query_one("#oss-endpoint", Input).value.strip()
+            oss_bucket = self.query_one("#oss-bucket", Input).value.strip()
             oss_access_key = self.query_one("#oss-access-key", Input).value.strip()
             oss_secret_key = self.query_one("#oss-secret-key", Input).value.strip()
-            if not oss_endpoint or not oss_access_key or not oss_secret_key:
+            if not oss_endpoint or not oss_bucket or not oss_access_key or not oss_secret_key:
                 self.query_one("#error-label", Static).update("All OSS credential fields are required")
                 return
 
@@ -279,10 +286,12 @@ class SetupScreen(Screen):
             self._log(f"Endpoint : {config.r2.endpoint_url}", "info")
         else:
             config.oss.endpoint = self.query_one("#oss-endpoint", Input).value.strip()
+            config.oss.bucket = self.query_one("#oss-bucket", Input).value.strip()
             config.oss.access_key_id = self.query_one("#oss-access-key", Input).value.strip()
             config.oss.access_key_secret = self.query_one("#oss-secret-key", Input).value.strip()
             self._log("Provider : Aliyun OSS", "info")
             self._log(f"Endpoint : {config.oss.endpoint}", "info")
+            self._log(f"Bucket   : {config.oss.bucket}", "info")
 
         config.cdn.custom_domain = cdn_domain
         config.cdn.r2_dev_subdomain = r2_dev_sub

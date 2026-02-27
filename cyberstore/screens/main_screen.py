@@ -109,6 +109,12 @@ class MainScreen(Screen):
         status_bar = self.query_one("#status-bar", StatusBar)
         status_bar.set_connected(True)
 
+        from cyberstore.config import PROVIDER_OSS
+
+        if app.config.storage_provider == PROVIDER_OSS:
+            self._on_buckets_loaded([app.config.oss.bucket])
+            return
+
         def do_load():
             try:
                 buckets = app.r2_client.list_buckets()
@@ -122,6 +128,11 @@ class MainScreen(Screen):
     def _on_buckets_loaded(self, names: list[str]) -> None:
         tree = self.query_one("#sidebar", BucketTree)
         tree.set_buckets(names)
+        if len(names) == 1:
+            self._current_bucket = names[0]
+            self._current_prefix = ""
+            self._selected_keys.clear()
+            self._load_objects()
 
     def on_bucket_tree_bucket_selected(self, event: BucketTree.BucketSelected) -> None:
         self._current_bucket = event.bucket_name
@@ -368,6 +379,13 @@ class MainScreen(Screen):
             self._selected_keys.add(obj.key)
 
     def action_new_bucket(self) -> None:
+        app = self._get_app()
+        from cyberstore.config import PROVIDER_OSS
+
+        if app and app.config.storage_provider == PROVIDER_OSS:
+            self.notify("Bucket is pre-configured via OSS endpoint", severity="warning")
+            return
+
         from cyberstore.screens.bucket_create_screen import BucketCreateScreen
 
         def on_result(name: str | None) -> None:

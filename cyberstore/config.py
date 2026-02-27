@@ -36,16 +36,24 @@ class OSSConfig:
     """Aliyun OSS credentials."""
 
     endpoint: str = ""
+    bucket: str = ""
     access_key_id: str = ""
     access_key_secret: str = ""
 
     def is_valid(self) -> bool:
-        return bool(self.endpoint and self.access_key_id and self.access_key_secret)
+        return bool(self.endpoint and self.bucket and self.access_key_id and self.access_key_secret)
 
     def region_name(self) -> str:
-        """Derive region from endpoint, e.g. oss-cn-hangzhou from https://oss-cn-hangzhou.aliyuncs.com."""
-        host = self.endpoint.lstrip("https://").lstrip("http://").split("/")[0]
-        return host.split(".")[0] if host else "oss-cn-hangzhou"
+        """Derive region from endpoint, e.g. oss-cn-shenzhen from https://oss-cn-shenzhen.aliyuncs.com."""
+        endpoint = self.endpoint
+        if "://" in endpoint:
+            endpoint = endpoint.split("://", 1)[1]
+        host = endpoint.split("/")[0]
+        parts = host.split(".")
+        for part in parts:
+            if part.startswith("oss-"):
+                return part
+        return parts[0] if parts else "oss-cn-hangzhou"
 
 
 @dataclass
@@ -104,6 +112,7 @@ class AppConfig:
             },
             "oss": {
                 "endpoint": self.oss.endpoint,
+                "bucket": self.oss.bucket,
                 "access_key_id": self.oss.access_key_id,
                 "access_key_secret": self.oss.access_key_secret,
             },
@@ -139,6 +148,7 @@ class AppConfig:
         if oss := data.get("oss"):
             config.oss = OSSConfig(
                 endpoint=oss.get("endpoint", ""),
+                bucket=oss.get("bucket", ""),
                 access_key_id=oss.get("access_key_id", ""),
                 access_key_secret=oss.get("access_key_secret", ""),
             )

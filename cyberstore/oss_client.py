@@ -13,6 +13,9 @@ _BOTO_CONFIG = BotocoreConfig(
     connect_timeout=10,
     read_timeout=15,
     retries={"max_attempts": 1},
+    s3={"addressing_style": "virtual", "payload_signing_enabled": False},
+    request_checksum_calculation="when_required",
+    response_checksum_validation="when_required",
 )
 
 from cyberstore.config import AppConfig
@@ -69,7 +72,8 @@ class OSSClient:
     def test_connection_detail(self) -> tuple[bool, str]:
         """Test the OSS connection, returning (success, message)."""
         try:
-            self._get_client().list_buckets()
+            bucket = self._config.oss.bucket
+            self._get_client().list_objects_v2(Bucket=bucket, MaxKeys=1)
             return True, "Connected successfully"
         except NoCredentialsError as e:
             return False, f"Invalid credentials: {e}"
@@ -158,25 +162,29 @@ class OSSClient:
         progress_callback: ProgressCallback | None = None,
     ) -> None:
         """Upload a file to OSS with size validation and progress reporting."""
+        import mimetypes
+
         file_size = os.path.getsize(local_path)
         if file_size > MAX_OBJECT_SIZE:
             raise OSSSizeLimitError(f"File size ({file_size:,} bytes) exceeds 10 MB limit")
 
         try:
-            extra_args: dict[str, str] = {}
-            import mimetypes
-
             mime_type, _ = mimetypes.guess_type(local_path)
-            if mime_type:
-                extra_args["ContentType"] = mime_type
+            content_type = mime_type or "application/octet-stream"
 
-            self._get_client().upload_file(
-                local_path,
-                bucket,
-                key,
-                ExtraArgs=extra_args if extra_args else None,
-                Callback=progress_callback,
+            with open(local_path, "rb") as f:
+                body = f.read()
+
+            self._get_client().put_object(
+                Bucket=bucket,
+                Key=key,
+                Body=body,
+                ContentType=content_type,
             )
+
+            if progress_callback and file_size > 0:
+                progress_callback(file_size)
+
         except ClientError as e:
             raise OSSError(f"Upload failed: {e}") from e
 
@@ -206,12 +214,17 @@ class OSSClient:
             raise OSSError(f"Delete failed: {e}") from e
 
     def delete_objects(self, bucket: str, keys: list[str]) -> None:
-        """Delete multiple objects."""
+        """Delete multiple objects one by one.
+
+        OSS's S3-compatible DeleteObjects requires a Content-MD5 header that
+        newer boto3 no longer sends automatically, so we use individual deletes
+        to avoid the compatibility issue.
+        """
         if not keys:
             return
         try:
-            objects = [{"Key": k} for k in keys]
-            self._get_client().delete_objects(Bucket=bucket, Delete={"Objects": objects})
+            for key in keys:
+                self._get_client().delete_object(Bucket=bucket, Key=key)
         except ClientError as e:
             raise OSSError(f"Bulk delete failed: {e}") from e
 
