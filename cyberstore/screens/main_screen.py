@@ -70,6 +70,7 @@ class MainScreen(Screen):
         ("n", "new_bucket", "New Bucket"),
         ("f", "new_folder", "New Folder"),
         ("escape", "clear_search", "Clear"),
+        ("s", "setup", "Setup"),
     ]
 
     def __init__(self) -> None:
@@ -453,3 +454,8 @@ class MainScreen(Screen):
         if search.value:
             search.value = ""
             self._filter_objects("")
+
+    def action_setup(self) -> None:
+        from cyberstore.screens.setup_screen import SetupScreen
+
+        self.app.push_screen(SetupScreen(from_main=True))

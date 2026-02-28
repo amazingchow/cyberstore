@@ -17,21 +17,25 @@ from cyberstore.config import PROVIDER_OSS, PROVIDER_R2
 class SetupScreen(Screen):
     """Setup wizard for configuring storage provider credentials and CDN settings."""
 
+    def __init__(self, from_main: bool = False) -> None:
+        super().__init__()
+        self._from_main = from_main
+
     DEFAULT_CSS = """
     SetupScreen {
         overflow-y: auto;
+        align: center top;
     }
     SetupScreen #setup-container {
         width: 70;
         height: auto;
-        padding: 2 3;
-        align: center top;
-        margin: 2 0;
+        padding: 1 1;
+        margin: 1 0;
     }
     SetupScreen #subtitle {
         width: 100%;
         content-align: center middle;
-        margin-bottom: 2;
+        margin-bottom: 1;
         color: $text-muted;
     }
     SetupScreen .field-label {
@@ -51,7 +55,7 @@ class SetupScreen(Screen):
     }
     SetupScreen .section-title {
         text-style: bold;
-        margin-top: 2;
+        margin-top: 1;
     }
     SetupScreen #provider-select {
         margin-bottom: 1;
@@ -63,6 +67,9 @@ class SetupScreen(Screen):
     SetupScreen #oss-fields {
         height: auto;
     }
+    SetupScreen #cdn-fields {
+        height: auto;
+    }
     SetupScreen #log-area {
         height: 10;
         border: solid $border;
@@ -72,8 +79,14 @@ class SetupScreen(Screen):
     """
 
     BINDINGS = [
-        ("escape", "app.quit", "Quit"),
+        ("escape", "close", "Back/Quit"),
     ]
+
+    def action_close(self) -> None:
+        if self._from_main:
+            self.app.pop_screen()
+        else:
+            self.app.quit()
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -139,20 +152,21 @@ class SetupScreen(Screen):
                     classes="field-input",
                 )
 
-            yield Static("── CDN Configuration (Optional) ──", classes="section-title")
+            with Vertical(id="cdn-fields"):
+                yield Static("── CDN Configuration (Optional) ──", classes="section-title")
 
-            yield Static("Custom Domain:", classes="field-label")
-            yield Input(
-                placeholder="e.g., cdn.example.com",
-                id="cdn-domain",
-                classes="field-input",
-            )
-            yield Static("R2.dev Subdomain:", classes="field-label")
-            yield Input(
-                placeholder="e.g., pub-xxxxx.r2.dev",
-                id="r2-dev-subdomain",
-                classes="field-input",
-            )
+                yield Static("Custom Domain:", classes="field-label")
+                yield Input(
+                    placeholder="e.g., cdn.example.com",
+                    id="cdn-domain",
+                    classes="field-input",
+                )
+                yield Static("R2.dev Subdomain:", classes="field-label")
+                yield Input(
+                    placeholder="e.g., pub-xxxxx.r2.dev",
+                    id="r2-dev-subdomain",
+                    classes="field-input",
+                )
 
             yield Static("── Theme ──", classes="section-title")
             yield Select(
@@ -163,6 +177,7 @@ class SetupScreen(Screen):
             )
 
             yield Static("", id="error-label")
+
             yield Button("Test Connection & Save", variant="success", id="save-btn")
 
             yield RichLog(id="log-area", highlight=True, markup=True, wrap=True)
@@ -205,10 +220,12 @@ class SetupScreen(Screen):
     def _show_r2_fields(self) -> None:
         self.query_one("#r2-fields").display = True
         self.query_one("#oss-fields").display = False
+        self.query_one("#cdn-fields").display = True
 
     def _show_oss_fields(self) -> None:
         self.query_one("#oss-fields").display = True
         self.query_one("#r2-fields").display = False
+        self.query_one("#cdn-fields").display = False
 
     def _selected_provider(self) -> str:
         rs = self.query_one("#provider-select", RadioSet)
@@ -343,7 +360,14 @@ class SetupScreen(Screen):
             app.config.save()
             self._log("Configuration saved.", "success")
             self.notify("Configuration saved!", severity="information")
-            app.switch_to_main()
+            if self._from_main:
+                app.pop_screen()
+                from cyberstore.screens.main_screen import MainScreen
+
+                main = app.query_one(MainScreen)
+                main._load_buckets()
+            else:
+                app.switch_to_main()
         else:
             self._log("Check your credentials and try again.", "warn")
             self.query_one("#error-label", Static).update("Connection failed. See log below for details.")
