@@ -48,12 +48,21 @@ class UploadScreen(ModalScreen[str | None]):
         self._selected_path: str | None = None
         self._uploading = False
 
+    def _get_upload_path(self) -> str:
+        from cyberstore.app import CyberStoreApp
+
+        app = self.app
+        if isinstance(app, CyberStoreApp):
+            path = app.config.preferences.upload_path.strip()
+            if path and Path(path).is_dir():
+                return path
+        return str(Path.home())
+
     def compose(self) -> ComposeResult:
-        home = str(Path.home())
         with Vertical(id="dialog"):
             yield Label(f"Upload to: {self._bucket}/{self._prefix}", id="title")
             with Vertical(id="main-body"):
-                yield DirectoryTree(home, id="file-tree")
+                yield DirectoryTree(self._get_upload_path(), id="file-tree")
                 yield Static("No file selected", id="selected-file")
                 yield Static("", id="file-size-info")
                 yield Label("Object Key:")

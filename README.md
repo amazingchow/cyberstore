@@ -8,17 +8,24 @@ TUI client for object storage — supports **Cloudflare R2** (default) and **Ali
 - Upload / download files with progress bar
 - Delete single or multiple objects (multi-select with `Space`)
 - Generate presigned URLs and CDN links
-- Create / delete buckets
+- Create buckets
 - Fuzzy search within a bucket
-- Switch between Cloudflare R2 and Aliyun OSS in the TUI setup screen
+- Switch between Cloudflare R2 and Aliyun OSS
 
 ## Installation
 
+Install via the install script (downloads the latest release binary):
+
 ```bash
-make init
+curl -fsSL https://raw.githubusercontent.com/amazingchow/CyberStore/main/scripts/install.sh | bash
 ```
 
-Run:
+Optional environment variables:
+
+- `INSTALL_DIR` — Directory to install the binary (default: `/usr/local/bin`). Example, install to your user bin: `INSTALL_DIR=~/.local/bin bash -c "$(curl -fsSL https://raw.githubusercontent.com/amazingchow/CyberStore/main/scripts/install.sh)"`
+- `CYBERSTORE_VERSION` — Pin to a specific release (e.g. `v1.2.0`). Omit to install the latest.
+
+Then run:
 
 ```bash
 cyberstore
@@ -43,22 +50,23 @@ Credentials are stored in `~/.config/cyberstore/config.toml` under the `[r2]` se
 | Field              | Description                                               |
 |--------------------|-----------------------------------------------------------|
 | Endpoint           | OSS endpoint, e.g. `https://oss-cn-hangzhou.aliyuncs.com` |
+| Bucket             | OSS bucket name                                           |
 | Access Key ID      | Aliyun RAM access key ID                                  |
 | Access Key Secret  | Aliyun RAM access key secret                              |
 
 Credentials are stored under the `[oss]` section. The active provider is recorded as `storage_provider = "oss"`.
 
-### CDN (optional, both providers)
+### CDN (optional, R2 only)
 
 | Field             | Description                               |
 |-------------------|-------------------------------------------|
 | Custom Domain     | Your CDN domain, e.g. `cdn.example.com`   |
-| R2.dev Subdomain  | R2 public bucket subdomain (R2 only)      |
+| R2.dev Subdomain  | R2 public bucket subdomain                |
 
 ### Example `~/.config/cyberstore/config.toml`
 
 ```toml
-storage_provider = "r2"   # or "oss"
+storage_provider = "r2" # or "oss"
 
 [r2]
 account_id = "abc123"
@@ -67,6 +75,7 @@ secret_access_key = "..."
 
 [oss]
 endpoint = "https://oss-cn-hangzhou.aliyuncs.com"
+bucket = "my-bucket"
 access_key_id = "..."
 access_key_secret = "..."
 
@@ -77,6 +86,7 @@ r2_dev_subdomain = ""
 [preferences]
 theme = "textual-dark"
 download_path = "/Users/you/Downloads"
+upload_path = "/Users/you"
 presigned_expiry = 3600
 ```
 
@@ -92,8 +102,11 @@ presigned_expiry = 3600
 | `c`         | Copy object key    |
 | `r`         | Refresh            |
 | `/`         | Search             |
+| `Escape`    | Clear search       |
 | `Space`     | Toggle select      |
 | `Backspace` | Go up one level    |
 | `n`         | New bucket         |
-| `Ctrl+T`    | Cycle theme       |
+| `f`         | New folder         |
+| `s`         | Open setup         |
+| `Ctrl+T`    | Cycle theme        |
 | `q`         | Quit               |

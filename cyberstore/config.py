@@ -83,6 +83,7 @@ class Preferences:
 
     theme: str = "textual-dark"
     download_path: str = str(Path.home() / "Downloads")
+    upload_path: str = str(Path.home())
     presigned_expiry: int = 3600  # seconds
 
 
@@ -123,6 +124,7 @@ class AppConfig:
             "preferences": {
                 "theme": self.preferences.theme,
                 "download_path": self.preferences.download_path,
+                "upload_path": self.preferences.upload_path,
                 "presigned_expiry": self.preferences.presigned_expiry,
             },
         }
@@ -161,6 +163,7 @@ class AppConfig:
             config.preferences = Preferences(
                 theme=prefs.get("theme", "textual-dark"),
                 download_path=prefs.get("download_path", str(Path.home() / "Downloads")),
+                upload_path=prefs.get("upload_path", str(Path.home())),
                 presigned_expiry=prefs.get("presigned_expiry", 3600),
             )
         return config

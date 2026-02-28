@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from pathlib import Path
 
 from rich.markup import escape
 from textual.app import ComposeResult
@@ -68,6 +69,12 @@ class SetupScreen(Screen):
         height: auto;
     }
     SetupScreen #cdn-fields {
+        height: auto;
+    }
+    SetupScreen #upload-dir-fields {
+        height: auto;
+    }
+    SetupScreen #theme-fields {
         height: auto;
     }
     SetupScreen #log-area {
@@ -154,7 +161,6 @@ class SetupScreen(Screen):
 
             with Vertical(id="cdn-fields"):
                 yield Static("── CDN Configuration (Optional) ──", classes="section-title")
-
                 yield Static("Custom Domain:", classes="field-label")
                 yield Input(
                     placeholder="e.g., cdn.example.com",
@@ -168,18 +174,25 @@ class SetupScreen(Screen):
                     classes="field-input",
                 )
 
-            yield Static("── Theme ──", classes="section-title")
-            yield Select(
-                [(t, t) for t in THEMES],
-                value="textual-dark",
-                id="theme-select",
-                allow_blank=False,
-            )
+            with Vertical(id="upload-dir-fields"):
+                yield Static("── Upload Directory (Optional) ──", classes="section-title")
+                yield Input(
+                    placeholder="Default: current user home directory",
+                    id="upload-path",
+                    classes="field-input",
+                )
+
+            with Vertical(id="theme-fields"):
+                yield Static("── Theme (Optional) ──", classes="section-title")
+                yield Select(
+                    [(t, t) for t in THEMES],
+                    value="textual-dark",
+                    id="theme-select",
+                    allow_blank=False,
+                )
 
             yield Static("", id="error-label")
-
             yield Button("Test Connection & Save", variant="success", id="save-btn")
-
             yield RichLog(id="log-area", highlight=True, markup=True, wrap=True)
         yield Footer()
 
@@ -206,6 +219,7 @@ class SetupScreen(Screen):
         self.query_one("#oss-secret-key", Input).value = config.oss.access_key_secret
         self.query_one("#cdn-domain", Input).value = config.cdn.custom_domain
         self.query_one("#r2-dev-subdomain", Input).value = config.cdn.r2_dev_subdomain
+        self.query_one("#upload-path", Input).value = config.preferences.upload_path
         saved_theme = config.preferences.theme
         if saved_theme in THEMES:
             self.query_one("#theme-select", Select).value = saved_theme
@@ -322,6 +336,9 @@ class SetupScreen(Screen):
 
         config.cdn.custom_domain = cdn_domain
         config.cdn.r2_dev_subdomain = r2_dev_sub
+
+        upload_path_input = self.query_one("#upload-path", Input).value.strip()
+        config.preferences.upload_path = upload_path_input if upload_path_input else str(Path.home())
         config.preferences.theme = self._selected_theme()
         app.theme = config.preferences.theme
 
