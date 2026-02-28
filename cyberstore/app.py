@@ -35,9 +35,8 @@ class CyberStoreApp(App):
     ]
 
     BINDINGS = [
-        ("q", "quit", "Quit"),
         ("ctrl+t", "cycle_theme", "Theme"),
-        ("ctrl+p", "command_palette", "Commands"),
+        ("q", "quit", "Quit"),
     ]
 
     def __init__(self) -> None:

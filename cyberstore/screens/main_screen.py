@@ -68,6 +68,7 @@ class MainScreen(Screen):
         ("backspace", "go_up", "Go Up"),
         ("space", "toggle_select", "Select"),
         ("n", "new_bucket", "New Bucket"),
+        ("f", "new_folder", "New Folder"),
         ("escape", "clear_search", "Clear"),
     ]
 
@@ -411,6 +412,41 @@ class MainScreen(Screen):
     def _on_bucket_created(self, name: str) -> None:
         self.notify(f"Bucket created: {name}")
         self._load_buckets()
+
+    def action_new_folder(self) -> None:
+        if not self._current_bucket:
+            self.notify("Select a bucket first", severity="warning")
+            return
+
+        from cyberstore.screens.folder_create_screen import FolderCreateScreen
+
+        def on_result(folder_name: str | None) -> None:
+            if folder_name:
+                self._create_folder(folder_name)
+
+        self.app.push_screen(
+            FolderCreateScreen(self._current_bucket, self._current_prefix),
+            callback=on_result,
+        )
+
+    def _create_folder(self, folder_name: str) -> None:
+        app = self._get_app()
+        if not app:
+            return
+
+        def do_create():
+            try:
+                key = app.r2_client.create_folder(self._current_bucket, self._current_prefix, folder_name)
+                self.app.call_from_thread(self._on_folder_created, key)
+            except Exception as e:
+                self.app.call_from_thread(self.notify, f"Error: {e}", severity="error")
+
+        threading.Thread(target=do_create, daemon=True).start()
+
+    def _on_folder_created(self, key: str) -> None:
+        folder_display = key.rstrip("/").split("/")[-1]
+        self.notify(f"Folder created: {folder_display}/")
+        self._load_objects()
 
     def action_clear_search(self) -> None:
         search = self.query_one("#search-bar", SearchBar)

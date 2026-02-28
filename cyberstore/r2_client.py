@@ -265,6 +265,18 @@ class R2Client:
         except ClientError as e:
             raise R2Error(f"Failed to create bucket: {e}") from e
 
+    def create_folder(self, bucket: str, prefix: str, folder_name: str) -> str:
+        """Create a virtual folder by uploading a zero-byte object with a trailing slash.
+
+        Returns the full key of the created folder placeholder object.
+        """
+        key = f"{prefix}{folder_name}/"
+        try:
+            self._get_client().put_object(Bucket=bucket, Key=key, Body=b"")
+            return key
+        except ClientError as e:
+            raise R2Error(f"Failed to create folder: {e}") from e
+
     def delete_bucket(self, name: str) -> None:
         """Delete an empty bucket."""
         try:

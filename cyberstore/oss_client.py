@@ -239,6 +239,23 @@ class OSSClient:
         except ClientError as e:
             raise OSSError(f"Failed to create bucket: {e}") from e
 
+    def create_folder(self, bucket: str, prefix: str, folder_name: str) -> str:
+        """Create a virtual folder by uploading a zero-byte object with a trailing slash.
+
+        Returns the full key of the created folder placeholder object.
+        """
+        key = f"{prefix}{folder_name}/"
+        try:
+            self._get_client().put_object(
+                Bucket=bucket,
+                Key=key,
+                Body=b"",
+                ContentType="application/x-directory",
+            )
+            return key
+        except ClientError as e:
+            raise OSSError(f"Failed to create folder: {e}") from e
+
     def delete_bucket(self, name: str) -> None:
         """Delete an empty OSS bucket."""
         try:

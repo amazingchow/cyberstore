@@ -56,6 +56,8 @@ class UploadScreen(ModalScreen[str | None]):
                 yield DirectoryTree(home, id="file-tree")
                 yield Static("No file selected", id="selected-file")
                 yield Static("", id="file-size-info")
+                yield Label("Object Key:")
+                yield Input(placeholder="e.g. folder/filename.txt", id="key-input")
                 yield Static("", id="error-label")
                 with Center():
                     yield ProgressBar(total=100, show_eta=False, id="progress")
@@ -74,6 +76,8 @@ class UploadScreen(ModalScreen[str | None]):
 
         self.query_one("#selected-file", Static).update(f"Selected: {filename}")
         self.query_one("#file-size-info", Static).update(f"File Size: {format_size(file_size)}")
+        key_input = self.query_one("#key-input", Input)
+        key_input.value = f"{self._prefix}{filename}" if self._prefix else filename
 
         if file_size > MAX_OBJECT_SIZE:
             self.query_one("#error-label", Static).update(f"File exceeds 10 MB limit ({format_size(file_size)})")
