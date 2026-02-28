@@ -36,7 +36,7 @@ help:  ## Display this help screen
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: all
-all: clean fmt lint test ## Full build pipeline: clean, format, lint, test
+all: clean fmt lint test build ## Full build pipeline: clean, format, lint, test, build
 
 ##@ Development
 
@@ -64,6 +64,30 @@ lint: ## Lint code (read-only check, CI friendly)
 test: ## Run unit tests with coverage
 	$(call print_header,Running Tests)
 	@$(PYTEST) -vv --cov=$(SRC_DIR) --cov-report=html --cov-report=term-missing $(TEST_DIR) || true
+
+##@ Build & Release
+
+.PHONY: build
+build: ## Build standalone binary with PyInstaller (output: dist/cyberstore)
+	$(call print_header,Building Standalone Binary)
+	@$(UV) pip install pyinstaller --quiet
+	@$(UV) run pyinstaller cyberstore.spec --clean --noconfirm
+	@echo "Binary built: dist/cyberstore"
+
+.PHONY: dist
+dist: ## Build Python sdist + wheel for PyPI
+	$(call print_header,Building Python Distribution)
+	@$(UV) build
+	@echo "Distribution packages:"
+	@ls -lh dist/*.whl dist/*.tar.gz 2>/dev/null || true
+
+.PHONY: release-tag
+release-tag: ## Create and push a git tag to trigger the release workflow (use: make release-tag VERSION=v1.2.3)
+	$(call print_header,Creating Release Tag)
+	@test -n "$(VERSION)" || (echo "Usage: make release-tag VERSION=v1.2.3" && exit 1)
+	@git tag -a $(VERSION) -m "Release $(VERSION)"
+	@git push origin $(VERSION)
+	@echo "Tag $(VERSION) pushed — GitHub Actions release workflow triggered."
 
 ##@ Build & Clean
 
