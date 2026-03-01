@@ -22,18 +22,21 @@ jobs:
             target: macos-arm64
             artifact: cyberstore-macos-arm64
 
-          # macOS x86_64 (Intel, last Intel runner = macos-13)
-          - os: macos-13
-            target: macos-x86_64
-            artifact: cyberstore-macos-x86_64
+          # macOS x86_64 (Intel)
+          # Note: macos-14-large requires GitHub Team/Enterprise Cloud plan.
+          # If you don't have a paid plan, you can remove this build target
+          # as Apple has discontinued Intel Macs and most users are on Apple Silicon.
+          # - os: macos-14-large
+          #   target: macos-x86_64
+          #   artifact: cyberstore-macos-x86_64
 
           # Linux x86_64
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             target: linux-x86_64
             artifact: cyberstore-linux-x86_64
 
           # Linux arm64 (GitHub-hosted arm64 runner)
-          - os: ubuntu-22.04-arm
+          - os: ubuntu-24.04-arm
             target: linux-arm64
             artifact: cyberstore-linux-arm64
 
