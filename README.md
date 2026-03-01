@@ -30,15 +30,21 @@
 
 ## Installation
 
-Install via the install script (downloads the latest release binary):
+### Option 1: Install via pipx (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/amazingchow/CyberStore/main/scripts/install.sh | bash
+pipx install cyberstore-tui
+```
+
+### Option 2: Install via install script (downloads the latest release binary)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/amazingchow/cyberstore/master/scripts/install.sh | bash
 ```
 
 Optional environment variables:
 
-- `INSTALL_DIR` — Directory to install the binary (default: `/usr/local/bin`). Example, install to your user bin: `INSTALL_DIR=~/.local/bin bash -c "$(curl -fsSL https://raw.githubusercontent.com/amazingchow/CyberStore/main/scripts/install.sh)"`
+- `INSTALL_DIR` — Directory to install the binary (default: `/usr/local/bin`). Example, install to your user bin: `INSTALL_DIR=~/.local/bin bash -c "$(curl -fsSL https://raw.githubusercontent.com/amazingchow/cyberstore/master/scripts/install.sh)"`
 - `CYBERSTORE_VERSION` — Pin to a specific release (e.g. `v1.2.0`). Omit to install the latest.
 
 Then run:

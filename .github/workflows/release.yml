@@ -127,7 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/cyberstore
+      url: https://pypi.org/p/cyberstore-tui
     permissions:
       id-token: write  # Required for trusted publishing (OIDC)
     steps:

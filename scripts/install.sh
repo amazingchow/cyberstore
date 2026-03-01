@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # CyberStore install script
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/amazingchow/CyberStore/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/amazingchow/cyberstore/master/scripts/install.sh | bash
 #   INSTALL_DIR=~/.local/bin bash install.sh          # custom install dir
 #   CYBERSTORE_VERSION=v1.2.0 bash install.sh         # specific version
 

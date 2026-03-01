@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "cyberstore"
+name = "cyberstore-tui"
 version = "0.1.0"
 description = "Object Storage TUI client (Cloudflare R2 / Aliyun OSS)"
 readme = "README.md"
@@ -43,6 +43,9 @@ dev = [
 
 [project.scripts]
 cyberstore = "cyberstore.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cyberstore"]
 
 [tool.ruff]
 lint.select = [
