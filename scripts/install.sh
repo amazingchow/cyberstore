@@ -73,7 +73,8 @@ main() {
   need_cmd curl
   need_cmd chmod
 
-  local artifact download_url tmp_file
+  local artifact download_url
+  local tmp_file='cyberstore-tmp-binary'
 
   info "Detecting platform..."
   artifact=$(detect_artifact)
@@ -82,9 +83,6 @@ main() {
   info "Resolving latest release..."
   download_url=$(get_download_url "$artifact")
   info "Download URL: $download_url"
-
-  tmp_file=$(mktemp /tmp/cyberstore.XXXXXX)
-  trap 'rm -f "$tmp_file"' EXIT
 
   info "Downloading binary..."
   curl -fsSL --progress-bar "$download_url" -o "$tmp_file"
