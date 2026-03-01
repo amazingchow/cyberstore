@@ -1,6 +1,20 @@
-# CyberStore
+<div align="center">
+    <img alt="CyberStore Setup Screen" src="./docs/assets/setup_tui.png" width="80%">
+</div>
 
-TUI client for object storage — supports **Cloudflare R2** (default) and **Aliyun OSS**.
+<p align="center">
+    <em>CyberStore - TUI client for object storage — supports Cloudflare R2 && Aliyun OSS.</em>
+</p>
+
+<p align="center">
+    <img alt="Tests" src="https://img.shields.io/badge/tests-passing-brightgreen">
+    <img alt="Version" src="https://img.shields.io/badge/version-v0.1.0-blue">
+    <img alt="Python" src="https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue">
+    <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
+    <img alt="Made by" src="https://img.shields.io/badge/made%20by-Claude%20Code-orange">
+</p>
+
+---
 
 ## Features
 
@@ -11,6 +25,8 @@ TUI client for object storage — supports **Cloudflare R2** (default) and **Ali
 - Create buckets
 - Fuzzy search within a bucket
 - Switch between Cloudflare R2 and Aliyun OSS
+
+---
 
 ## Installation
 
@@ -30,6 +46,8 @@ Then run:
 ```bash
 cyberstore
 ```
+
+---
 
 ## Configuration
 
@@ -89,6 +107,8 @@ download_path = "/Users/you/Downloads"
 upload_path = "/Users/you"
 presigned_expiry = 3600
 ```
+
+---
 
 ## Key Bindings
 
