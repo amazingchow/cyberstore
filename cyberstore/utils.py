@@ -45,7 +45,7 @@ _CODE_EXTS = {
 }
 _DATA_EXTS = {".csv", ".sql", ".db", ".sqlite", ".parquet"}
 
-MAX_OBJECT_SIZE = 10 * 1024 * 1024  # 10 MB
+MAX_OBJECT_SIZE = 1024 * 1024 * 1024  # 1 GB
 
 
 def get_file_category(filename: str) -> str:
